@@ -20,12 +20,6 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
     public TimeEntry create(TimeEntry timeEntry) {
         int returnID;
 
-        TimeEntry newEntry = new TimeEntry(
-                timeEntry.getProjectId(),
-                timeEntry.getUserId(),
-                timeEntry.getDate(),
-                timeEntry.getHours());
-
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         returnID = template.update( connection -> {
@@ -42,9 +36,7 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
             return statement;
         }, keyHolder);
 
-        newEntry.setId(keyHolder.getKey().longValue());
-
-        return newEntry;
+        return find(keyHolder.getKey().longValue());
     }
 
 
