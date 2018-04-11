@@ -1,5 +1,7 @@
 package io.pivotal.pal.tracker;
 
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +13,16 @@ import java.util.List;
 @RequestMapping("/time-entries")
 public class TimeEntryController {
     private TimeEntryRepository repo = null;
-    public TimeEntryController(TimeEntryRepository repo){
+    private final CounterService counter;
+    private final GaugeService gauge;
+
+    public TimeEntryController(TimeEntryRepository repo,
+                               CounterService counter,
+                               GaugeService gauge) {
+        this.counter = counter;
+        this.gauge = gauge;
         this.repo = repo;
     }
-
 
     @PostMapping
     public ResponseEntity<TimeEntry> create(@RequestBody TimeEntry timeEntry){
@@ -24,6 +32,9 @@ public class TimeEntryController {
         returnEntry = repo.create(timeEntry);
 
         returnValue = new ResponseEntity<>(returnEntry,HttpStatus.CREATED);
+
+        counter.increment("TimeEntry.created");
+        gauge.submit("timeEntries.count", repo.list().size());
 
         return returnValue;
     }
@@ -41,6 +52,8 @@ public class TimeEntryController {
             returnValue = new ResponseEntity<TimeEntry>(HttpStatus.NOT_FOUND);
         }
 
+        counter.increment("TimeEntry.read");
+
         return returnValue;
 
     }
@@ -50,6 +63,8 @@ public class TimeEntryController {
         ResponseEntity<List<TimeEntry>> returnValue;
 
         returnValue = new ResponseEntity<List<TimeEntry>>(repo.list(),HttpStatus.OK);
+
+        counter.increment("TimeEntry.list");
 
         return returnValue;
     }
@@ -70,6 +85,7 @@ public class TimeEntryController {
             returnValue = new ResponseEntity<TimeEntry>(HttpStatus.NOT_FOUND);
         }
 
+        counter.increment("TimeEntry.update");
 
         return returnValue;
 
@@ -91,6 +107,8 @@ public class TimeEntryController {
             returnValue = new ResponseEntity<TimeEntry>(HttpStatus.NO_CONTENT);
         }
 
+        counter.increment("TimeEntry.delete");
+        gauge.submit("timeEntries.count", repo.list().size());
 
         return returnValue;
     }

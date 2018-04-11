@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,12 +21,17 @@ import static org.mockito.Mockito.*;
 
 public class TimeEntryControllerTest {
     private TimeEntryRepository timeEntryRepository;
+    private GaugeService  gaugeService;
+    private CounterService counterService;
     private TimeEntryController controller;
 
     @Before
     public void setUp() throws Exception {
+
         timeEntryRepository = mock(TimeEntryRepository.class);
-        controller = new TimeEntryController(timeEntryRepository);
+        gaugeService = mock(GaugeService.class);
+        counterService = mock(CounterService.class);
+        controller = new TimeEntryController(timeEntryRepository, counterService, gaugeService);
     }
 
     @Test
