@@ -3,5 +3,6 @@ applications:
 - name: pal-tracker
   path: build/libs/pal-tracker.jar
   host: fjr-pal-tracker
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
   env:
     SECURITY_FORCE_HTTPS: true
